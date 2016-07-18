@@ -219,7 +219,7 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
         return NSURL.fileURLWithPath(filePath)
     }
     
-    //MARK : AVCaptureFileOutputRecordingDelegate
+    //MARK: - AVCaptureFileOutputRecordingDelegate
     //捕获并写入到本地完成
     func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!) {
         if (error == nil) {
