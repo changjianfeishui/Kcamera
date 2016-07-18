@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Kcamera" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="USV-Cp-RqE" userLabel="preView" customClass="PreView" customModule="Kcamera" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="20" width="320" height="548"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VB2-84-6wU" userLabel="controView">
+                                <rect key="frame" x="0.0" y="20" width="320" height="548"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xuI-Bs-GjJ" customClass="CameraModeView" customModule="Kcamera" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="438" width="320" height="110"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="v7j-TJ-6Eh" userLabel="CaptureButton" customClass="CaptureButton" customModule="Kcamera" customModuleProvider="target">
+                                                <rect key="frame" x="126" y="34" width="68" height="68"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="68" id="EEp-5e-Ufu"/>
+                                                    <constraint firstAttribute="width" constant="68" id="gLi-Bw-s5q"/>
+                                                </constraints>
+                                                <connections>
+                                                    <action selector="captureBtnDidClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="2qE-8A-FBf"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstItem="v7j-TJ-6Eh" firstAttribute="centerX" secondItem="xuI-Bs-GjJ" secondAttribute="centerX" id="DEh-Ht-0GJ"/>
+                                            <constraint firstAttribute="bottom" secondItem="v7j-TJ-6Eh" secondAttribute="bottom" constant="8" id="hBK-gQ-DJ0"/>
+                                            <constraint firstAttribute="height" constant="110" id="pyp-Iq-K2L"/>
+                                        </constraints>
+                                        <connections>
+                                            <action selector="cameraModelChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="lec-mt-uHk"/>
+                                        </connections>
+                                    </view>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="xuI-Bs-GjJ" secondAttribute="bottom" id="A7k-fi-fV6"/>
+                                    <constraint firstItem="xuI-Bs-GjJ" firstAttribute="leading" secondItem="VB2-84-6wU" secondAttribute="leading" id="eu6-Vg-TV6"/>
+                                    <constraint firstAttribute="trailing" secondItem="xuI-Bs-GjJ" secondAttribute="trailing" id="kfx-v2-HNZ"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="USV-Cp-RqE" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="6CP-5S-kKy"/>
+                            <constraint firstItem="VB2-84-6wU" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="HwR-kq-38P"/>
+                            <constraint firstAttribute="trailing" secondItem="USV-Cp-RqE" secondAttribute="trailing" id="KIW-ZV-6cS"/>
+                            <constraint firstItem="USV-Cp-RqE" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="LRj-QD-QOr"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="USV-Cp-RqE" secondAttribute="bottom" id="VQc-cT-Jb1"/>
+                            <constraint firstAttribute="trailing" secondItem="VB2-84-6wU" secondAttribute="trailing" id="gpZ-nr-OyP"/>
+                            <constraint firstItem="VB2-84-6wU" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="iJA-77-0w7"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="VB2-84-6wU" secondAttribute="bottom" id="rIp-Jr-N3h"/>
+                        </constraints>
+                    </view>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+                    <connections>
+                        <outlet property="preView" destination="USV-Cp-RqE" id="RDS-aQ-y2n"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="278" y="339"/>
+        </scene>
+    </scenes>
+</document>
