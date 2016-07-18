@@ -200,7 +200,6 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
             self.outputURL = self.uniqueURL()
             //7. 写入视频
             self.movieOutput.startRecordingToOutputFileURL(self.outputURL, recordingDelegate: self)
-            
         }
     }
     
@@ -282,21 +281,27 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
             if self.captureSession.canAddInput(videoInput) {
                 self.captureSession.addInput(videoInput)
                 self.activeVideoInput = videoInput
+                
             }else{
                 //7. 如果添加失败,回滚配置
                 self.captureSession.addInput(self.activeVideoInput)
             }
+
+            
+
+            
+            
+
             
             //8. 提交配置
             self.captureSession.commitConfiguration()
             
-            self.captureSession.
             
-            if self.movieOutput.recording {
+            
+//            if self.movieOutput.recording {
 //                self.movieOutput.startRecordingToOutputFileURL(self.outputURL, recordingDelegate: self)
-                self.captureSession.startRunning()
-
-            }
+//                self.captureSession.startRunning()
+//            }
 
             
         }else{
