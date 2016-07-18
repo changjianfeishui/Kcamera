@@ -286,22 +286,8 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
                 //7. 如果添加失败,回滚配置
                 self.captureSession.addInput(self.activeVideoInput)
             }
-
-            
-
-            
-            
-
-            
             //8. 提交配置
             self.captureSession.commitConfiguration()
-            
-            
-            
-//            if self.movieOutput.recording {
-//                self.movieOutput.startRecordingToOutputFileURL(self.outputURL, recordingDelegate: self)
-//                self.captureSession.startRunning()
-//            }
 
             
         }else{
