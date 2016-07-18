@@ -31,6 +31,8 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
     //视频的输出地址
     var outputURL:NSURL!
 
+    
+    //MARK: - 设置捕捉会话
     //初始化捕捉会话
     func setupSession() -> Bool {
         //0. 判断权限
@@ -111,6 +113,7 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
     }
     
+    //MARK: - 捕捉图片
     //捕捉静态图片
     func captureStillImage() -> Void {
         //1. 建立输入和输出的连接
@@ -170,6 +173,7 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
     }
     
     
+    //MARK: - 捕捉视频
     //开始捕捉视频
     func startRecording() -> Void {
         //1. 判断是否正在录制
@@ -240,8 +244,78 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
     }
     
+    //MARK: - 切换摄像头
     
+    //获取设备的摄像头数量
+    func cameraCount() -> Int {
+        return AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo).count
+    }
 
+    //只有摄像头数量大于1个时,才能进行切换
+    func canSwitchCamera() -> Bool {
+        return self.cameraCount() > 1
+    }
+    
+    //切换摄像头
+    func switchCameras() -> Bool {
+        //1. 判断是否能够切换摄像头
+        if !self.canSwitchCamera() {
+            return false
+        }
+        //2. 获取闲置的摄像头
+        var device:AVCaptureDevice
+        if self.activeVideoInput.device.position == .Back {
+            device = self.cameraWithPosition(.Front)!
+        }else{
+            device = self.cameraWithPosition(.Back)!
+        }
+        
+        //3. 把采集设备封装为一个AVCaptureDeviceInput对象
+        let videoInput = try? AVCaptureDeviceInput(device: device)
+        
+        if videoInput != nil {
+            //4. 开始重新配置捕捉会话
+            self.captureSession.beginConfiguration()
+            //5. 移除当前的输入对象
+            self.captureSession.removeInput(self.activeVideoInput)
+            //6. 添加新的输入对象
+            if self.captureSession.canAddInput(videoInput) {
+                self.captureSession.addInput(videoInput)
+                self.activeVideoInput = videoInput
+            }else{
+                //7. 如果添加失败,回滚配置
+                self.captureSession.addInput(self.activeVideoInput)
+            }
+            
+            //8. 提交配置
+            self.captureSession.commitConfiguration()
+            
+            self.captureSession.
+            
+            if self.movieOutput.recording {
+//                self.movieOutput.startRecordingToOutputFileURL(self.outputURL, recordingDelegate: self)
+                self.captureSession.startRunning()
+
+            }
+
+            
+        }else{
+            return false
+        }
+        return true
+        
+    }
+    
+    //根据position返回可用的摄像头
+    func cameraWithPosition(position:AVCaptureDevicePosition) -> AVCaptureDevice? {
+        let devices = AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo) as! [AVCaptureDevice]
+        for device in devices {
+            if device.position == position {
+                return device
+            }
+        }
+        return nil
+    }
     
     
 }

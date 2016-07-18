@@ -52,5 +52,11 @@ class ViewController: UIViewController {
         }
     }
     
+    //切换摄像头
+    @IBAction func switchCamera(sender: UIButton) {
+        self.captureModel.switchCameras()
+    }
+
+    
 }
 

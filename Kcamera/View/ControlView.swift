@@ -9,7 +9,6 @@
 import UIKit
 
 class ControlView: UIView {
-
     
 
 }
