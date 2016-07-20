@@ -63,5 +63,12 @@ class ViewController: UIViewController,PreViewDelegate {
         self.captureModel.focusAtPoint(point)
     }
     
+    func exposeAtPoint(point: CGPoint) {
+        self.captureModel.exposeAtPoint(point)
+    }
+    
+    func resetFocusAndExposureModes() {
+        self.captureModel.resetFocusAndExposureModes()
+    }
 }
 

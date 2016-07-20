@@ -325,8 +325,34 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
         }else{
             //暂时忽略了对设备不支持情况的处理,比如前置摄像头
         }
-        
     }
     
+    //MARK: - 曝光
+    func exposeAtPoint(point:CGPoint) -> Void {
+        let device = self.activeVideoInput.device
+        if device.exposurePointOfInterestSupported && device.isExposureModeSupported(.ContinuousAutoExposure) {
+            if ((try? device.lockForConfiguration()) != nil) {
+                device.exposurePointOfInterest = point
+                device.exposureMode = .AutoExpose
+                device.unlockForConfiguration()
+            }
+        }
+    }
     
+    //MARK: - 重新设置对焦和曝光模式
+    func resetFocusAndExposureModes() -> Void {
+        let device = self.activeVideoInput.device
+        let center = CGPoint(x: 0.5, y: 0.5)
+        if ((try? device.lockForConfiguration()) != nil) {
+            if device.focusPointOfInterestSupported && device.isFocusModeSupported(.ContinuousAutoFocus) {
+                device.focusMode = .ContinuousAutoFocus
+                device.focusPointOfInterest = center
+            }
+            if device.exposurePointOfInterestSupported && device.isExposureModeSupported(.ContinuousAutoExposure) {
+                device.exposureMode = .ContinuousAutoExposure
+                device.exposurePointOfInterest = center
+            }
+            device.unlockForConfiguration()
+        }
+    }
 }

@@ -12,6 +12,12 @@ import AVFoundation
 protocol PreViewDelegate {
     //兴趣点对焦
     func focuxAtPoint(point:CGPoint)->Void
+    
+    //曝光
+    func exposeAtPoint(point:CGPoint)->Void
+    
+    //重置连续对焦和曝光模式
+    func resetFocusAndExposureModes()->Void
 }
 
 
@@ -40,6 +46,16 @@ class PreView: UIView {
         return view
     }()
     
+    //曝光框UI
+    lazy var exposureBox:UIView = {
+        let view = UIView(frame: BOX_BOUNDS)
+        view.backgroundColor = UIColor.clearColor()
+        view.layer.borderColor = UIColor(colorLiteralRed: 1.000, green: 0.421, blue: 0.054, alpha: 1.000).CGColor
+        view.layer.borderWidth = 5.0
+        view.hidden = true
+        return view
+    }()
+    
     override class func layerClass()->AnyClass
     {
         return AVCaptureVideoPreviewLayer.self
@@ -52,14 +68,30 @@ class PreView: UIView {
     }
     
     func setupView() -> Void {
-        //1. 添加点击事件
+        //1. 添加对焦点击事件
         let singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap(_:)))
         self.addGestureRecognizer(singleTapRecognizer)
         //2. 添加对焦框矩形UI
         self.addSubview(self.focusBox)
+        
+        //3. 添加曝光点击事件
+        let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
+        doubleTapRecognizer.numberOfTapsRequired = 2
+        singleTapRecognizer.requireGestureRecognizerToFail(doubleTapRecognizer)
+        self.addGestureRecognizer(doubleTapRecognizer)
+        
+        //4. 添加曝光矩形框UI
+        self.addSubview(self.exposureBox)
+        
+        
+        //5. 添加重置回连续对焦和曝光模式的手势
+        let doubleDoubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handDoubledoubleTap(_:)))
+        doubleDoubleTapRecognizer.numberOfTapsRequired = 2
+        doubleDoubleTapRecognizer.numberOfTouchesRequired = 2
+        self.addGestureRecognizer(doubleDoubleTapRecognizer)
     }
     
-    //对焦功能的实现
+    //对焦功能的触发
     func handleSingleTap(tap:UITapGestureRecognizer) -> Void {
         //1. 点击坐标
         let point = tap.locationInView(self)
@@ -68,6 +100,40 @@ class PreView: UIView {
         //3. 通知代理
         self.delegate?.focuxAtPoint(self.captureDevicePointForPoint(point))
         
+    }
+    
+    //曝光功能的触发
+    func handleDoubleTap(tap:UITapGestureRecognizer) -> Void {
+        //1. 点击坐标
+        let point = tap.locationInView(self)
+        //2. 动画
+        self.runBoxAnimationOnView(self.exposureBox, point: point)
+        //3. 通知代理
+        self.delegate?.exposeAtPoint(self.captureDevicePointForPoint(point))
+    }
+    
+    func handDoubledoubleTap(tap:UITapGestureRecognizer) -> Void {
+        //1. 动画
+        let center = (self.layer as! AVCaptureVideoPreviewLayer).pointForCaptureDevicePointOfInterest(CGPoint(x: 0.5, y: 0.5))
+        self.focusBox.center = center
+        self.exposureBox.center = center
+        self.exposureBox.transform = CGAffineTransformMakeScale(1.2, 1.2)
+        self.focusBox.hidden = false
+        self.exposureBox.hidden = false
+        UIView.animateWithDuration(0.15, delay: 0, options:.CurveEaseInOut, animations: { 
+            self.focusBox.layer.transform = CATransform3DMakeScale(0.5, 0.5, 1.0)
+            self.exposureBox.layer.transform = CATransform3DMakeScale(0.7, 0.7, 1.0)
+            }) { (_) in
+                let time = dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC)))
+                dispatch_after(time, dispatch_get_main_queue(), {
+                    self.focusBox.hidden = true
+                    self.exposureBox.hidden = true
+                    self.focusBox.transform = CGAffineTransformIdentity
+                    self.exposureBox.transform = CGAffineTransformIdentity
+                })
+        }
+        //2. 通知代理
+        self.delegate?.resetFocusAndExposureModes()
     }
     
     //矩形框缩放动画
