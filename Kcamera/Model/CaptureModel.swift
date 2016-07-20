@@ -244,7 +244,6 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
     }
     
     //MARK: - 切换摄像头
-    
     //获取设备的摄像头数量
     func cameraCount() -> Int {
         return AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo).count
@@ -306,6 +305,27 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
             }
         }
         return nil
+    }
+    
+    //MARK: - 对焦
+    //传入是摄像头设备坐标系下的point
+    func focusAtPoint(point:CGPoint) -> Void {
+        //1. 获取当前使用的摄像头
+        let device = self.activeVideoInput.device
+        //2. 判断当前设备是否支持兴趣点对焦和自动对焦模式
+        /*比如前置摄像头就不支持对焦操作,因为设备和目标的距离不会太长*/
+        if device.focusPointOfInterestSupported && device.isFocusModeSupported(.AutoFocus) {
+            //3. 修改配置前需要先锁定设备(设备是多个应用程序通用的)
+            if ((try? device.lockForConfiguration()) != nil) {
+                //4. 设置对焦点,修改对焦模式
+                device.focusPointOfInterest = point
+                device.focusMode = .AutoFocus
+                device.unlockForConfiguration()
+            }
+        }else{
+            //暂时忽略了对设备不支持情况的处理,比如前置摄像头
+        }
+        
     }
     
     

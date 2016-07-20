@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController,PreViewDelegate {
 
     var cameraModel:CameraModel! = .Video
     var captureModel:CaptureModel!
@@ -21,6 +21,7 @@ class ViewController: UIViewController {
         self.captureModel = CaptureModel()
         if self.captureModel.setupSession() {
             self.preView.session = self.captureModel.captureSession
+            self.preView.delegate = self
             self.captureModel.startSession()
         }
     }
@@ -57,6 +58,10 @@ class ViewController: UIViewController {
         self.captureModel.switchCameras()
     }
 
+    //MARK: - PreViewDelegate
+    func focuxAtPoint(point:CGPoint)->Void{
+        self.captureModel.focusAtPoint(point)
+    }
     
 }
 

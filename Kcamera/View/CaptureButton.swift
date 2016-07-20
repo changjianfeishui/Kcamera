@@ -23,9 +23,7 @@ class CaptureButton: UIButton {
         self.circleLayer.frame = CGRectInset(self.bounds, 8, 8)
         self.circleLayer.cornerRadius = self.circleLayer.frame.width * 0.5
         self.layer.addSublayer(self.circleLayer)    }
-    
-
-    
+        
     
     override var selected: Bool{
         didSet{

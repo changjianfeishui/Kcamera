@@ -17,6 +17,7 @@
 		37205F3C1D2FAA920036FE87 /* CameraModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37205F3B1D2FAA920036FE87 /* CameraModeView.swift */; };
 		37205F3E1D2FAADC0036FE87 /* CaptureButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37205F3D1D2FAADC0036FE87 /* CaptureButton.swift */; };
 		373AF79D1D3736DC003B529E /* CaptureModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373AF79C1D3736DC003B529E /* CaptureModel.swift */; };
+		37C816F41D3DD69E0084A234 /* StatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C816F31D3DD69E0084A234 /* StatusView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		37205F3B1D2FAA920036FE87 /* CameraModeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraModeView.swift; sourceTree = "<group>"; };
 		37205F3D1D2FAADC0036FE87 /* CaptureButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureButton.swift; sourceTree = "<group>"; };
 		373AF79C1D3736DC003B529E /* CaptureModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureModel.swift; sourceTree = "<group>"; };
+		37C816F31D3DD69E0084A234 /* StatusView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +85,7 @@
 				37205F3D1D2FAADC0036FE87 /* CaptureButton.swift */,
 				1F43E3391D3689D400CEFFBD /* PreView.swift */,
 				1F43E33B1D3689ED00CEFFBD /* ControlView.swift */,
+				37C816F31D3DD69E0084A234 /* StatusView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -168,6 +171,7 @@
 			files = (
 				37205F3C1D2FAA920036FE87 /* CameraModeView.swift in Sources */,
 				1F43E33A1D3689D400CEFFBD /* PreView.swift in Sources */,
+				37C816F41D3DD69E0084A234 /* StatusView.swift in Sources */,
 				37205F271D2E4E120036FE87 /* ViewController.swift in Sources */,
 				37205F3E1D2FAADC0036FE87 /* CaptureButton.swift in Sources */,
 				1F43E33C1D3689ED00CEFFBD /* ControlView.swift in Sources */,
