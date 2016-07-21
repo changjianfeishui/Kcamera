@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController,PreViewDelegate {
 
@@ -57,6 +58,21 @@ class ViewController: UIViewController,PreViewDelegate {
     @IBAction func switchCamera(sender: UIButton) {
         self.captureModel.switchCameras()
     }
+    
+    //切换闪光灯
+    @IBAction func switchFlash(sender: UISegmentedControl) {
+        let modeIndex = sender.selectedSegmentIndex
+        if self.cameraModel == .Video {
+            let mode = AVCaptureTorchMode(rawValue: modeIndex)
+            self.captureModel.switchTorch(mode!)
+        }else{
+            let mode = AVCaptureFlashMode(rawValue: modeIndex)
+            self.captureModel.switchFlash(mode!)
+        }
+        
+    }
+
+    
 
     //MARK: - PreViewDelegate
     func focuxAtPoint(point:CGPoint)->Void{

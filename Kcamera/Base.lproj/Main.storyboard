@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -63,11 +63,25 @@
                                                     <action selector="switchCamera:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Y1w-gi-Tgc"/>
                                                 </connections>
                                             </button>
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="KRc-xL-wEf">
+                                                <rect key="frame" x="6" y="10" width="131" height="29"/>
+                                                <segments>
+                                                    <segment title="Off"/>
+                                                    <segment title="On"/>
+                                                    <segment title="Auto"/>
+                                                </segments>
+                                                <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                                <connections>
+                                                    <action selector="switchFlash:" destination="BYZ-38-t0r" eventType="valueChanged" id="a9V-V5-3Jd"/>
+                                                </connections>
+                                            </segmentedControl>
                                         </subviews>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="calibratedRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="48" id="GfH-JF-ZDI"/>
+                                            <constraint firstItem="KRc-xL-wEf" firstAttribute="centerY" secondItem="gri-AB-XTp" secondAttribute="centerY" id="M7v-Yl-Lhb"/>
                                             <constraint firstAttribute="trailing" secondItem="OBR-Vc-b9H" secondAttribute="trailing" id="fai-Kr-M71"/>
+                                            <constraint firstItem="KRc-xL-wEf" firstAttribute="leading" secondItem="gri-AB-XTp" secondAttribute="leading" constant="5" id="o3X-Lp-VLr"/>
                                             <constraint firstAttribute="bottom" secondItem="OBR-Vc-b9H" secondAttribute="bottom" id="p7b-e0-2Dv"/>
                                             <constraint firstItem="OBR-Vc-b9H" firstAttribute="top" secondItem="gri-AB-XTp" secondAttribute="top" id="yG4-iz-aav"/>
                                         </constraints>

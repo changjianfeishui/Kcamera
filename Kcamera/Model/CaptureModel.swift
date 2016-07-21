@@ -355,4 +355,26 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
             device.unlockForConfiguration()
         }
     }
+    
+    //MARK:- 拍照闪光灯
+    func switchFlash(mode:AVCaptureFlashMode) -> Void {
+        let device = self.activeVideoInput.device
+        if device.isFlashModeSupported(mode) {
+            if ((try? device.lockForConfiguration()) != nil) {
+                device.flashMode = mode
+                device.unlockForConfiguration()
+            }
+        }
+    }
+    //MARK: - 视频手电筒
+    func switchTorch(mode:AVCaptureTorchMode) -> Void {
+        let device = self.activeVideoInput.device
+        if device.isTorchModeSupported(mode) {
+            if ((try? device.lockForConfiguration()) != nil) {
+                device.torchMode = mode
+                device.unlockForConfiguration()
+            }
+        }
+    }
+    
 }
