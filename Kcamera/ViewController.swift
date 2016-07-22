@@ -59,7 +59,7 @@ class ViewController: UIViewController,PreViewDelegate {
         self.captureModel.switchCameras()
     }
     
-    //切换闪光灯
+    //切换闪光灯和手电筒模式
     @IBAction func switchFlash(sender: UISegmentedControl) {
         let modeIndex = sender.selectedSegmentIndex
         if self.cameraModel == .Video {
