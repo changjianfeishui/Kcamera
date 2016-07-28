@@ -377,4 +377,30 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
     }
     
+    //MARK: - 视频缩放
+    func zoomVedio(scale:CGFloat) -> Void {
+        //1. 判断是否支持缩放
+        if !self.cameraSupportsZoom() {
+            return
+        }
+        //2. 判断缩放比例,最大的缩放比例为device.activeFormat.videoMaxZoomFactor,但这里只进行最多4倍缩放
+        let device = self.activeVideoInput.device
+        let zoomFactor = scale * device.videoZoomFactor
+        if zoomFactor > 4 || zoomFactor < 1 {
+            return
+        }
+        //3. 锁定配置并修改
+        if ((try? device.lockForConfiguration()) != nil) {
+            device.videoZoomFactor = zoomFactor
+            //4. 解锁配置
+            device.unlockForConfiguration()
+        }
+        
+    }
+    
+    //是否可以进行缩放
+    func cameraSupportsZoom() -> Bool {
+        return self.activeVideoInput.device.activeFormat.videoMaxZoomFactor > 1.0
+    }
+    
 }

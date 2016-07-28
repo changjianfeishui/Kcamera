@@ -86,5 +86,8 @@ class ViewController: UIViewController,PreViewDelegate {
     func resetFocusAndExposureModes() {
         self.captureModel.resetFocusAndExposureModes()
     }
+    func zoomVedio(factor: CGFloat) {
+        self.captureModel.zoomVedio(factor)
+    }
 }
 

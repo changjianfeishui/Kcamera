@@ -18,6 +18,9 @@ protocol PreViewDelegate {
     
     //重置连续对焦和曝光模式
     func resetFocusAndExposureModes()->Void
+    
+    //缩放
+    func zoomVedio(factor:CGFloat) -> Void
 }
 
 
@@ -89,6 +92,15 @@ class PreView: UIView {
         doubleDoubleTapRecognizer.numberOfTapsRequired = 2
         doubleDoubleTapRecognizer.numberOfTouchesRequired = 2
         self.addGestureRecognizer(doubleDoubleTapRecognizer)
+        
+        //6. 添加缩放手势
+        let pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
+        self.addGestureRecognizer(pinchRecognizer)
+    }
+    
+    //视频缩放
+    func handlePinch(pinch:UIPinchGestureRecognizer) -> Void {
+        self.delegate?.zoomVedio(pinch.scale)
     }
     
     //对焦功能的触发
