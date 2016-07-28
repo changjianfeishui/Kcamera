@@ -17,6 +17,7 @@
 		37205F3C1D2FAA920036FE87 /* CameraModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37205F3B1D2FAA920036FE87 /* CameraModeView.swift */; };
 		37205F3E1D2FAADC0036FE87 /* CaptureButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37205F3D1D2FAADC0036FE87 /* CaptureButton.swift */; };
 		373AF79D1D3736DC003B529E /* CaptureModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373AF79C1D3736DC003B529E /* CaptureModel.swift */; };
+		375E63DC1D49EFC400644A65 /* FaceDetectionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375E63DB1D49EFC400644A65 /* FaceDetectionDelegate.swift */; };
 		37C816F41D3DD69E0084A234 /* StatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C816F31D3DD69E0084A234 /* StatusView.swift */; };
 /* End PBXBuildFile section */
 
@@ -33,6 +34,7 @@
 		37205F3B1D2FAA920036FE87 /* CameraModeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraModeView.swift; sourceTree = "<group>"; };
 		37205F3D1D2FAADC0036FE87 /* CaptureButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureButton.swift; sourceTree = "<group>"; };
 		373AF79C1D3736DC003B529E /* CaptureModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureModel.swift; sourceTree = "<group>"; };
+		375E63DB1D49EFC400644A65 /* FaceDetectionDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FaceDetectionDelegate.swift; sourceTree = "<group>"; };
 		37C816F31D3DD69E0084A234 /* StatusView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -66,6 +68,7 @@
 		37205F231D2E4E120036FE87 /* Kcamera */ = {
 			isa = PBXGroup;
 			children = (
+				375E63DA1D49EFA900644A65 /* Delegate */,
 				373AF7991D373652003B529E /* Model */,
 				37205F3A1D2FAA920036FE87 /* View */,
 				37205F241D2E4E120036FE87 /* AppDelegate.swift */,
@@ -96,6 +99,14 @@
 				373AF79C1D3736DC003B529E /* CaptureModel.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		375E63DA1D49EFA900644A65 /* Delegate */ = {
+			isa = PBXGroup;
+			children = (
+				375E63DB1D49EFC400644A65 /* FaceDetectionDelegate.swift */,
+			);
+			path = Delegate;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -173,6 +184,7 @@
 				37205F3C1D2FAA920036FE87 /* CameraModeView.swift in Sources */,
 				1F43E33A1D3689D400CEFFBD /* PreView.swift in Sources */,
 				37C816F41D3DD69E0084A234 /* StatusView.swift in Sources */,
+				375E63DC1D49EFC400644A65 /* FaceDetectionDelegate.swift in Sources */,
 				37205F271D2E4E120036FE87 /* ViewController.swift in Sources */,
 				37205F3E1D2FAADC0036FE87 /* CaptureButton.swift in Sources */,
 				1F43E33C1D3689ED00CEFFBD /* ControlView.swift in Sources */,

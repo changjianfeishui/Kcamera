@@ -23,6 +23,7 @@ class ViewController: UIViewController,PreViewDelegate {
         if self.captureModel.setupSession() {
             self.preView.session = self.captureModel.captureSession
             self.preView.delegate = self
+            self.captureModel.faceDelegate = self.preView
             self.captureModel.startSession()
         }
     }
@@ -69,7 +70,6 @@ class ViewController: UIViewController,PreViewDelegate {
             let mode = AVCaptureFlashMode(rawValue: modeIndex)
             self.captureModel.switchFlash(mode!)
         }
-        
     }
 
     

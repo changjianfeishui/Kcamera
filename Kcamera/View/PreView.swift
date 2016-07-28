@@ -26,7 +26,7 @@ protocol PreViewDelegate {
 
 let BOX_BOUNDS = CGRect(x: 0, y: 0, width: 150, height: 150)
 
-class PreView: UIView {
+class PreView: UIView, FaceDetectionDelegate {
 
     var delegate:PreViewDelegate?
     
@@ -59,6 +59,11 @@ class PreView: UIView {
         return view
     }()
     
+//    //人脸框layer
+//    var faceLayer:[NSInteger:CALayer]!
+//    //展示人脸识别框的layer
+//    var overlayLayer:CALayer!
+    
     override class func layerClass()->AnyClass
     {
         return AVCaptureVideoPreviewLayer.self
@@ -86,7 +91,6 @@ class PreView: UIView {
         //4. 添加曝光矩形框UI
         self.addSubview(self.exposureBox)
         
-        
         //5. 添加重置回连续对焦和曝光模式的手势
         let doubleDoubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handDoubledoubleTap(_:)))
         doubleDoubleTapRecognizer.numberOfTapsRequired = 2
@@ -96,6 +100,14 @@ class PreView: UIView {
         //6. 添加缩放手势
         let pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
         self.addGestureRecognizer(pinchRecognizer)
+        
+        //7.人脸识别
+//        self.overlayLayer = CALayer()
+//        self.overlayLayer.frame = self.bounds
+//        self.layer.addSublayer(self.overlayLayer)
+        
+        
+        
     }
     
     //视频缩放
@@ -160,16 +172,44 @@ class PreView: UIView {
                     view.hidden = true
                     view.layer.transform = CATransform3DIdentity
                 })
-                
-                
         }
     }
-    
     
     //将屏幕坐标系上的触控点转换为摄像头设备坐标系上的点
     func captureDevicePointForPoint(point:CGPoint) -> CGPoint{
         let layer = self.layer as! AVCaptureVideoPreviewLayer
         return layer.captureDevicePointOfInterestForPoint(point)
+    }
+    
+    //MARK: - FaceDetectionDelegate
+    func didDetectFaces(faces: [AnyObject]) {
+        //1. 创建一个数组用于保存转换后的人脸数据
+        var transformedFaces = [AVMetadataObject]()
+        //2. 遍历传入的人脸数据进行转换
+        for face in faces {
+            //3. 元数据对象就会被转化成图层的坐标
+            let transformedFace = (self.layer as! AVCaptureVideoPreviewLayer).transformedMetadataObjectForMetadataObject(face as! AVMetadataObject)
+            transformedFaces.append(transformedFace)
+        }
+        
+        print("dssfdsdf")
+        
+        //4.
+        //TODO: 只要一直有人脸出现,代理方法就会不停的被调用,就会不停创建view
+        for face in transformedFaces {
+            let faceID =  (face as! AVMetadataFaceObject).faceID
+            let view = UIView(frame: face.bounds)
+            view.layer.borderColor = UIColor(colorLiteralRed: 1.000, green: 0.421, blue: 0.054, alpha: 1.000).CGColor
+            view.layer.borderWidth = 5
+            self.addSubview(view)
+            UIView.animateWithDuration(0.15, animations: {
+                view.alpha = 0
+                }, completion: { (_) in
+                    view.removeFromSuperview()
+            })
+        }
+        
+        
     }
 
 }

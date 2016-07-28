@@ -11,8 +11,8 @@ import AVFoundation
 import AssetsLibrary
 
 
-
-class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
+class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMetadataOutputObjectsDelegate {
+    var faceDelegate:FaceDetectionDelegate?
     
     //捕捉会话
     var captureSession:AVCaptureSession!
@@ -30,7 +30,9 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     //视频的输出地址
     var outputURL:NSURL!
-
+    
+    //元数据输出,用于人脸检测
+    var metadataOutput:AVCaptureMetadataOutput!
     
     //MARK: - 设置捕捉会话
     //初始化捕捉会话
@@ -90,6 +92,15 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
         if self.captureSession.canAddOutput(self.movieOutput){
             self.captureSession.addOutput(self.movieOutput)
         }
+        
+        //9. 创建用于人脸检测的元数据输出
+        self.metadataOutput = AVCaptureMetadataOutput()
+        if self.captureSession.canAddOutput(self.metadataOutput) {
+            self.captureSession.addOutput(self.metadataOutput)
+            self.metadataOutput.metadataObjectTypes = [AVMetadataObjectTypeFace]
+            self.metadataOutput.setMetadataObjectsDelegate(self, queue: dispatch_get_main_queue())
+        }
+        
         
         return true
         
@@ -401,6 +412,15 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate {
     //是否可以进行缩放
     func cameraSupportsZoom() -> Bool {
         return self.activeVideoInput.device.activeFormat.videoMaxZoomFactor > 1.0
+    }
+    
+    
+    //MARK: - AVCaptureMetadataOutputObjectsDelegate
+    func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [AnyObject]!, fromConnection connection: AVCaptureConnection!) {
+
+        
+        self.faceDelegate?.didDetectFaces(metadataObjects)
+
     }
     
 }
