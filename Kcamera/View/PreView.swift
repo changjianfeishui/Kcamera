@@ -30,6 +30,10 @@ class PreView: UIView, FaceDetectionDelegate {
 
     var delegate:PreViewDelegate?
     
+    //存储最新的人脸检测faceID
+    var latestFaces = Set<Int>()
+    
+    
     var session:AVCaptureSession!{
         get{
             return (self.layer as! AVCaptureVideoPreviewLayer).session
@@ -183,33 +187,38 @@ class PreView: UIView, FaceDetectionDelegate {
     
     //MARK: - FaceDetectionDelegate
     func didDetectFaces(faces: [AnyObject]) {
+
         //1. 创建一个数组用于保存转换后的人脸数据
         var transformedFaces = [AVMetadataObject]()
+
         //2. 遍历传入的人脸数据进行转换
         for face in faces {
             //3. 元数据对象就会被转化成图层的坐标
             let transformedFace = (self.layer as! AVCaptureVideoPreviewLayer).transformedMetadataObjectForMetadataObject(face as! AVMetadataObject)
             transformedFaces.append(transformedFace)
         }
-        
-        print("dssfdsdf")
-        
-        //4.
-        //TODO: 只要一直有人脸出现,代理方法就会不停的被调用,就会不停创建view
+
+        //4.遍历新检测到的人脸信息
+        var faces = Set<Int>()
         for face in transformedFaces {
             let faceID =  (face as! AVMetadataFaceObject).faceID
-            let view = UIView(frame: face.bounds)
-            view.layer.borderColor = UIColor(colorLiteralRed: 1.000, green: 0.421, blue: 0.054, alpha: 1.000).CGColor
-            view.layer.borderWidth = 5
-            self.addSubview(view)
-            UIView.animateWithDuration(0.15, animations: {
-                view.alpha = 0
-                }, completion: { (_) in
-                    view.removeFromSuperview()
-            })
+            faces.insert(faceID)
+            //5. 如果为新检测出的人脸信息
+            if !self.latestFaces.contains(faceID) {
+                //6. 可视化检测结果
+                let view = UIView(frame: face.bounds)
+                view.layer.borderColor = UIColor(colorLiteralRed: 1.000, green: 0.421, blue: 0.054, alpha: 1.000).CGColor
+                view.layer.borderWidth = 2
+                self.addSubview(view)
+                UIView.animateWithDuration(1, animations: {
+                    view.alpha = 0
+                    }, completion: { (_) in
+                        view.removeFromSuperview()
+                })
+            }
         }
-        
-        
+        //7. 更新保存最新的人脸信息
+        self.latestFaces = faces
     }
 
 }
