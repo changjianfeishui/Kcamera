@@ -63,10 +63,6 @@ class PreView: UIView, FaceDetectionDelegate {
         return view
     }()
     
-//    //人脸框layer
-//    var faceLayer:[NSInteger:CALayer]!
-//    //展示人脸识别框的layer
-//    var overlayLayer:CALayer!
     
     override class func layerClass()->AnyClass
     {
@@ -104,14 +100,7 @@ class PreView: UIView, FaceDetectionDelegate {
         //6. 添加缩放手势
         let pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
         self.addGestureRecognizer(pinchRecognizer)
-        
-        //7.人脸识别
-//        self.overlayLayer = CALayer()
-//        self.overlayLayer.frame = self.bounds
-//        self.layer.addSublayer(self.overlayLayer)
-        
-        
-        
+
     }
     
     //视频缩放

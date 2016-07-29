@@ -417,7 +417,6 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     
     //MARK: - AVCaptureMetadataOutputObjectsDelegate
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [AnyObject]!, fromConnection connection: AVCaptureConnection!) {
-
         
         self.faceDelegate?.didDetectFaces(metadataObjects)
 
