@@ -9,5 +9,5 @@
 
 protocol FaceDetectionDelegate {
     //检测到的人脸数组
-    func didDetectFaces(faces:[AnyObject]) -> Void
+    func didDetectFaces(_ faces:[AnyObject]) -> Void
 }

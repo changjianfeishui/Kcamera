@@ -11,16 +11,16 @@ import AVFoundation
 
 protocol PreViewDelegate {
     //兴趣点对焦
-    func focuxAtPoint(point:CGPoint)->Void
+    func focuxAtPoint(_ point:CGPoint)->Void
     
     //曝光
-    func exposeAtPoint(point:CGPoint)->Void
+    func exposeAtPoint(_ point:CGPoint)->Void
     
     //重置连续对焦和曝光模式
     func resetFocusAndExposureModes()->Void
     
     //缩放
-    func zoomVedio(factor:CGFloat) -> Void
+    func zoomVedio(_ factor:CGFloat) -> Void
 }
 
 
@@ -46,25 +46,25 @@ class PreView: UIView, FaceDetectionDelegate {
     //对焦框UI
     lazy var focusBox:UIView = {
         let view = UIView(frame: BOX_BOUNDS)
-        view.backgroundColor = UIColor.clearColor()
-        view.layer.borderColor = UIColor(colorLiteralRed: 0.102, green: 0.636, blue: 1.000, alpha: 1.000).CGColor
+        view.backgroundColor = UIColor.clear
+        view.layer.borderColor = UIColor(colorLiteralRed: 0.102, green: 0.636, blue: 1.000, alpha: 1.000).cgColor
         view.layer.borderWidth = 5.0
-        view.hidden = true
+        view.isHidden = true
         return view
     }()
     
     //曝光框UI
     lazy var exposureBox:UIView = {
         let view = UIView(frame: BOX_BOUNDS)
-        view.backgroundColor = UIColor.clearColor()
-        view.layer.borderColor = UIColor(colorLiteralRed: 1.000, green: 0.421, blue: 0.054, alpha: 1.000).CGColor
+        view.backgroundColor = UIColor.clear
+        view.layer.borderColor = UIColor(colorLiteralRed: 1.000, green: 0.421, blue: 0.054, alpha: 1.000).cgColor
         view.layer.borderWidth = 5.0
-        view.hidden = true
+        view.isHidden = true
         return view
     }()
     
     
-    override class func layerClass()->AnyClass
+    override class var layerClass:AnyClass
     {
         return AVCaptureVideoPreviewLayer.self
     }
@@ -85,7 +85,7 @@ class PreView: UIView, FaceDetectionDelegate {
         //3. 添加曝光点击事件
         let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
         doubleTapRecognizer.numberOfTapsRequired = 2
-        singleTapRecognizer.requireGestureRecognizerToFail(doubleTapRecognizer)
+        singleTapRecognizer.require(toFail: doubleTapRecognizer)
         self.addGestureRecognizer(doubleTapRecognizer)
         
         //4. 添加曝光矩形框UI
@@ -104,14 +104,14 @@ class PreView: UIView, FaceDetectionDelegate {
     }
     
     //视频缩放
-    func handlePinch(pinch:UIPinchGestureRecognizer) -> Void {
+    func handlePinch(_ pinch:UIPinchGestureRecognizer) -> Void {
         self.delegate?.zoomVedio(pinch.scale)
     }
     
     //对焦功能的触发
-    func handleSingleTap(tap:UITapGestureRecognizer) -> Void {
+    func handleSingleTap(_ tap:UITapGestureRecognizer) -> Void {
         //1. 点击坐标
-        let point = tap.locationInView(self)
+        let point = tap.location(in: self)
         //2. 动画
         self.runBoxAnimationOnView(self.focusBox, point: point)
         //3. 通知代理
@@ -120,33 +120,33 @@ class PreView: UIView, FaceDetectionDelegate {
     }
     
     //曝光功能的触发
-    func handleDoubleTap(tap:UITapGestureRecognizer) -> Void {
+    func handleDoubleTap(_ tap:UITapGestureRecognizer) -> Void {
         //1. 点击坐标
-        let point = tap.locationInView(self)
+        let point = tap.location(in: self)
         //2. 动画
         self.runBoxAnimationOnView(self.exposureBox, point: point)
         //3. 通知代理
         self.delegate?.exposeAtPoint(self.captureDevicePointForPoint(point))
     }
     
-    func handDoubledoubleTap(tap:UITapGestureRecognizer) -> Void {
+    func handDoubledoubleTap(_ tap:UITapGestureRecognizer) -> Void {
         //1. 动画
-        let center = (self.layer as! AVCaptureVideoPreviewLayer).pointForCaptureDevicePointOfInterest(CGPoint(x: 0.5, y: 0.5))
+        let center = (self.layer as! AVCaptureVideoPreviewLayer).pointForCaptureDevicePoint(ofInterest: CGPoint(x: 0.5, y: 0.5))
         self.focusBox.center = center
         self.exposureBox.center = center
-        self.exposureBox.transform = CGAffineTransformMakeScale(1.2, 1.2)
-        self.focusBox.hidden = false
-        self.exposureBox.hidden = false
-        UIView.animateWithDuration(0.15, delay: 0, options:.CurveEaseInOut, animations: { 
+        self.exposureBox.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+        self.focusBox.isHidden = false
+        self.exposureBox.isHidden = false
+        UIView.animate(withDuration: 0.15, delay: 0, options:UIViewAnimationOptions(), animations: { 
             self.focusBox.layer.transform = CATransform3DMakeScale(0.5, 0.5, 1.0)
             self.exposureBox.layer.transform = CATransform3DMakeScale(0.7, 0.7, 1.0)
             }) { (_) in
-                let time = dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC)))
-                dispatch_after(time, dispatch_get_main_queue(), {
-                    self.focusBox.hidden = true
-                    self.exposureBox.hidden = true
-                    self.focusBox.transform = CGAffineTransformIdentity
-                    self.exposureBox.transform = CGAffineTransformIdentity
+                let time = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                DispatchQueue.main.asyncAfter(deadline: time, execute: {
+                    self.focusBox.isHidden = true
+                    self.exposureBox.isHidden = true
+                    self.focusBox.transform = CGAffineTransform.identity
+                    self.exposureBox.transform = CGAffineTransform.identity
                 })
         }
         //2. 通知代理
@@ -154,28 +154,28 @@ class PreView: UIView, FaceDetectionDelegate {
     }
     
     //矩形框缩放动画
-    func runBoxAnimationOnView(view:UIView,point:CGPoint) -> Void {
+    func runBoxAnimationOnView(_ view:UIView,point:CGPoint) -> Void {
         view.center = point
-        view.hidden = false
-        UIView.animateWithDuration(0.15, delay: 0, options: .CurveEaseInOut, animations: { 
+        view.isHidden = false
+        UIView.animate(withDuration: 0.15, delay: 0, options: UIViewAnimationOptions(), animations: { 
             view.layer.transform = CATransform3DMakeScale(0.5, 0.5, 1)
             }) { (_) in
-                let time = dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC)))
-                dispatch_after(time, dispatch_get_main_queue(), { 
-                    view.hidden = true
+                let time = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                DispatchQueue.main.asyncAfter(deadline: time, execute: { 
+                    view.isHidden = true
                     view.layer.transform = CATransform3DIdentity
                 })
         }
     }
     
     //将屏幕坐标系上的触控点转换为摄像头设备坐标系上的点
-    func captureDevicePointForPoint(point:CGPoint) -> CGPoint{
+    func captureDevicePointForPoint(_ point:CGPoint) -> CGPoint{
         let layer = self.layer as! AVCaptureVideoPreviewLayer
-        return layer.captureDevicePointOfInterestForPoint(point)
+        return layer.captureDevicePointOfInterest(for: point)
     }
     
     //MARK: - FaceDetectionDelegate
-    func didDetectFaces(faces: [AnyObject]) {
+    func didDetectFaces(_ faces: [AnyObject]) {
 
         //1. 创建一个数组用于保存转换后的人脸数据
         var transformedFaces = [AVMetadataObject]()
@@ -183,8 +183,8 @@ class PreView: UIView, FaceDetectionDelegate {
         //2. 遍历传入的人脸数据进行转换
         for face in faces {
             //3. 元数据对象就会被转化成图层的坐标
-            let transformedFace = (self.layer as! AVCaptureVideoPreviewLayer).transformedMetadataObjectForMetadataObject(face as! AVMetadataObject)
-            transformedFaces.append(transformedFace)
+            let transformedFace = (self.layer as! AVCaptureVideoPreviewLayer).transformedMetadataObject(for: face as! AVMetadataObject)
+            transformedFaces.append(transformedFace!)
         }
 
         //4.遍历新检测到的人脸信息
@@ -196,10 +196,10 @@ class PreView: UIView, FaceDetectionDelegate {
             if !self.latestFaces.contains(faceID) {
                 //6. 可视化检测结果
                 let view = UIView(frame: face.bounds)
-                view.layer.borderColor = UIColor(colorLiteralRed: 1.000, green: 0.421, blue: 0.054, alpha: 1.000).CGColor
+                view.layer.borderColor = UIColor(colorLiteralRed: 1.000, green: 0.421, blue: 0.054, alpha: 1.000).cgColor
                 view.layer.borderWidth = 2
                 self.addSubview(view)
-                UIView.animateWithDuration(1, animations: {
+                UIView.animate(withDuration: 1, animations: {
                     view.alpha = 0
                     }, completion: { (_) in
                         view.removeFromSuperview()

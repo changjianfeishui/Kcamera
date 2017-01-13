@@ -9,8 +9,8 @@
 import UIKit
 
 enum CameraModel {
-    case Photo
-    case Video
+    case photo
+    case video
 }
 
 
@@ -21,9 +21,9 @@ class CameraModeView: UIControl {
     var photoTextLayer:CATextLayer!
     var foregroundColor:UIColor!
     
-    var cameraModel:CameraModel? = .Video{
+    var cameraModel:CameraModel? = .video{
         didSet{
-            self.sendActionsForControlEvents(.ValueChanged)
+            self.sendActions(for: .valueChanged)
         }
     }
 
@@ -47,7 +47,7 @@ class CameraModeView: UIControl {
         //3. 生成文本
         self.videoTextLayer = self.textLayerWithTitle("Vedio")
         self.videoTextLayer.frame = CGRect(x: 0, y: 0, width: 60, height: 20)
-        self.videoTextLayer.foregroundColor = self.foregroundColor.CGColor
+        self.videoTextLayer.foregroundColor = self.foregroundColor.cgColor
         self.labelContainerView.layer.addSublayer(self.videoTextLayer)
         
         self.photoTextLayer = self.textLayerWithTitle("Photo")
@@ -57,35 +57,35 @@ class CameraModeView: UIControl {
         //4. 增加滑动手势
         let right = UISwipeGestureRecognizer(target: self, action: #selector(switchModel(_:)))
         let left = UISwipeGestureRecognizer(target: self, action: #selector(switchModel(_:)))
-        left.direction = .Left
+        left.direction = .left
         self.addGestureRecognizer(right)
         self.addGestureRecognizer(left)
     }
     
-    func switchModel(recognizer:UISwipeGestureRecognizer) -> Void {
+    func switchModel(_ recognizer:UISwipeGestureRecognizer) -> Void {
         //1. 判断手势滑动方向
-        if recognizer.direction == .Left {
-            UIView.animateWithDuration(0.28, animations: {
+        if recognizer.direction == .left {
+            UIView.animate(withDuration: 0.28, animations: {
                 //2. 动画切换文本位置
                 self.labelContainerView.center.x = self.center.x - 30
                 }, completion: { (flag) in
                     //3. 更新状态及展示
-                    if self.cameraModel != .Photo{
-                        self.cameraModel = .Photo
-                        self.photoTextLayer.foregroundColor = self.foregroundColor.CGColor
-                        self.videoTextLayer.foregroundColor = UIColor.whiteColor().CGColor
+                    if self.cameraModel != .photo{
+                        self.cameraModel = .photo
+                        self.photoTextLayer.foregroundColor = self.foregroundColor.cgColor
+                        self.videoTextLayer.foregroundColor = UIColor.white.cgColor
                     }
             })
             
         }else{
-            UIView.animateWithDuration(0.28, animations: {
+            UIView.animate(withDuration: 0.28, animations: {
                 self.labelContainerView.center.x = self.center.x + 30
                 
                 }, completion: { (flag) in
-                    if self.cameraModel != .Video{
-                        self.cameraModel = .Video
-                        self.videoTextLayer.foregroundColor = self.foregroundColor.CGColor
-                        self.photoTextLayer.foregroundColor = UIColor.whiteColor().CGColor
+                    if self.cameraModel != .video{
+                        self.cameraModel = .video
+                        self.videoTextLayer.foregroundColor = self.foregroundColor.cgColor
+                        self.photoTextLayer.foregroundColor = UIColor.white.cgColor
                     }
             })
         }
@@ -99,23 +99,23 @@ class CameraModeView: UIControl {
     }
     
     
-    func textLayerWithTitle(title:String) -> CATextLayer {
+    func textLayerWithTitle(_ title:String) -> CATextLayer {
         let layer = CATextLayer()
         let font = UIFont(name: "AvenirNextCondensed-DemiBold", size: 17)
-        layer.font = font?.fontName
+        layer.font = font?.fontName as CFTypeRef?
         layer.fontSize = 17
         layer.string = title
         layer.alignmentMode = "center"
-        layer.contentsScale = UIScreen.mainScreen().scale
+        layer.contentsScale = UIScreen.main.scale
         return layer
     }
     
-    override func drawRect(rect: CGRect) {
+    override func draw(_ rect: CGRect) {
         let context = UIGraphicsGetCurrentContext()
-        CGContextSetFillColorWithColor(context, self.foregroundColor.CGColor)
+        context?.setFillColor(self.foregroundColor.cgColor)
         
         let circleRect = CGRect(x: rect.midX - 3, y: 2, width: 6, height: 6)
-        CGContextFillEllipseInRect(context, circleRect)
+        context?.fillEllipse(in: circleRect)
     }
 
 }

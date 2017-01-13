@@ -11,7 +11,7 @@ import AVFoundation
 
 class ViewController: UIViewController,PreViewDelegate {
 
-    var cameraModel:CameraModel! = .Video
+    var cameraModel:CameraModel! = .video
     var captureModel:CaptureModel!
     
     @IBOutlet weak var preView: PreView!
@@ -28,23 +28,23 @@ class ViewController: UIViewController,PreViewDelegate {
         }
     }
 
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return true
     }
 
 
     //拍摄模式切换(Video || Photo)
-    @IBAction func cameraModelChanged(sender: CameraModeView) {
+    @IBAction func cameraModelChanged(_ sender: CameraModeView) {
         print("\(sender.cameraModel)")
         self.cameraModel = sender.cameraModel
     }
     
     //点击拍摄按钮
-    @IBAction func captureBtnDidClicked(sender: CaptureButton) {
-        if self.cameraModel == CameraModel.Video{
-            sender.selected = !sender.selected
+    @IBAction func captureBtnDidClicked(_ sender: CaptureButton) {
+        if self.cameraModel == CameraModel.video{
+            sender.isSelected = !sender.isSelected
             //录制视频
-            if sender.selected {
+            if sender.isSelected {
                 self.captureModel.startRecording()
             }else{
                 self.captureModel.stopRecording()
@@ -56,14 +56,14 @@ class ViewController: UIViewController,PreViewDelegate {
     }
     
     //切换摄像头
-    @IBAction func switchCamera(sender: UIButton) {
+    @IBAction func switchCamera(_ sender: UIButton) {
         self.captureModel.switchCameras()
     }
     
     //切换闪光灯和手电筒模式
-    @IBAction func switchFlash(sender: UISegmentedControl) {
+    @IBAction func switchFlash(_ sender: UISegmentedControl) {
         let modeIndex = sender.selectedSegmentIndex
-        if self.cameraModel == .Video {
+        if self.cameraModel == .video {
             let mode = AVCaptureTorchMode(rawValue: modeIndex)
             self.captureModel.switchTorch(mode!)
         }else{
@@ -75,18 +75,18 @@ class ViewController: UIViewController,PreViewDelegate {
     
 
     //MARK: - PreViewDelegate
-    func focuxAtPoint(point:CGPoint)->Void{
+    func focuxAtPoint(_ point:CGPoint)->Void{
         self.captureModel.focusAtPoint(point)
     }
     
-    func exposeAtPoint(point: CGPoint) {
+    func exposeAtPoint(_ point: CGPoint) {
         self.captureModel.exposeAtPoint(point)
     }
     
     func resetFocusAndExposureModes() {
         self.captureModel.resetFocusAndExposureModes()
     }
-    func zoomVedio(factor: CGFloat) {
+    func zoomVedio(_ factor: CGFloat) {
         self.captureModel.zoomVedio(factor)
     }
 }

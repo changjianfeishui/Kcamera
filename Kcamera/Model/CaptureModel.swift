@@ -17,7 +17,7 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     //捕捉会话
     var captureSession:AVCaptureSession!
     //由于捕捉会话的启动是一个同步调用,所以需要异步调用
-    let globalQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
+    let globalQueue = DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default)
     
     //AVCaptureOutput子类,用于捕捉输出静态图片
     var imageOutput:AVCaptureStillImageOutput!
@@ -29,7 +29,7 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     var activeVideoInput:AVCaptureDeviceInput!
     
     //视频的输出地址
-    var outputURL:NSURL!
+    var outputURL:URL!
     
     //元数据输出,用于人脸检测
     var metadataOutput:AVCaptureMetadataOutput!
@@ -38,14 +38,14 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     //初始化捕捉会话
     func setupSession() -> Bool {
         //0. 判断权限
-        let videoAuthStatus = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
-        if videoAuthStatus == .Denied || videoAuthStatus == .Restricted {
+        let videoAuthStatus = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo)
+        if videoAuthStatus == .denied || videoAuthStatus == .restricted {
             UIAlertView(title: "提示", message: "请在iPhone的“设置-隐私-相机”选项中，允许访问相机 ", delegate: nil, cancelButtonTitle: "确定").show()
             
             return false
         }
-        let audioAuthStatus = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
-        if audioAuthStatus == .Denied || audioAuthStatus == .Restricted {
+        let audioAuthStatus = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo)
+        if audioAuthStatus == .denied || audioAuthStatus == .restricted {
             UIAlertView(title: "提示", message: "请在iPhone的“设置-隐私-相机”选项中，允许访问麦克风 ", delegate: nil, cancelButtonTitle: "确定").show()
             return false
         }
@@ -55,7 +55,7 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
         //2. 设置视频采集质量
         self.captureSession.sessionPreset = AVCaptureSessionPresetHigh
         //3. 设置视频采集设备(默认返回后置摄像头)
-        let videoDevice = AVCaptureDevice .defaultDeviceWithMediaType(AVMediaTypeVideo)
+        let videoDevice = AVCaptureDevice .defaultDevice(withMediaType: AVMediaTypeVideo)
         //4. 把采集设备封装为一个AVCaptureDeviceInput对象
         let videoInput = try? AVCaptureDeviceInput(device: videoDevice)
         self.activeVideoInput = videoInput
@@ -70,7 +70,7 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
         }
         
         //6. 参照设置视频采集输入的步骤,将音频采集输入添加到捕捉会话中
-        let audioDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeAudio)
+        let audioDevice = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeAudio)
         let audioInput = try? AVCaptureDeviceInput(device: audioDevice)
         if audioInput != nil {
             if self.captureSession .canAddInput(audioInput) {
@@ -98,7 +98,7 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
         if self.captureSession.canAddOutput(self.metadataOutput) {
             self.captureSession.addOutput(self.metadataOutput)
             self.metadataOutput.metadataObjectTypes = [AVMetadataObjectTypeFace]
-            self.metadataOutput.setMetadataObjectsDelegate(self, queue: dispatch_get_main_queue())
+            self.metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
         }
         
         
@@ -108,8 +108,8 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     
     //启动捕捉会话
     func startSession() -> Void {
-        if !self.captureSession.running{
-            dispatch_sync(self.globalQueue, { 
+        if !self.captureSession.isRunning{
+            self.globalQueue.sync(execute: { 
                 self.captureSession.startRunning()
             })
         }
@@ -117,8 +117,8 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     
     //停止捕捉会话
     func stopSession() -> Void {
-        if self.captureSession.running {
-            dispatch_sync(self.globalQueue, { 
+        if self.captureSession.isRunning {
+            self.globalQueue.sync(execute: { 
                 self.captureSession.stopRunning()
             })
         }
@@ -128,29 +128,29 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     //捕捉静态图片
     func captureStillImage() -> Void {
         //1. 建立输入和输出的连接
-        let connection = self.imageOutput.connectionWithMediaType(AVMediaTypeVideo)
+        let connection = self.imageOutput.connection(withMediaType: AVMediaTypeVideo)
         //2. 设置照片方向
-        if connection.supportsVideoOrientation {
-            connection.videoOrientation = self.currentVideoOrientation()
+        if (connection?.isVideoOrientationSupported)! {
+            connection?.videoOrientation = self.currentVideoOrientation()
         }
         
         //3. 拍摄照片
-        self.imageOutput.captureStillImageAsynchronouslyFromConnection(connection) { (sampleBuffer, error) in
+        self.imageOutput.captureStillImageAsynchronously(from: connection) { (sampleBuffer, error) in
             if sampleBuffer != nil{
                 let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
-                let image = UIImage(data: imageData)
+                let image = UIImage(data: imageData!)
                 //4. 写入照片
                 self.writeImageToAssetsLibrary(image!)
             }else{
-                print(error.localizedDescription)
+                print(error?.localizedDescription)
             }
         }
     }
     //将捕捉到的图片写入到相册
-    func writeImageToAssetsLibrary(image:UIImage) -> Void {
+    func writeImageToAssetsLibrary(_ image:UIImage) -> Void {
         //1. 判断相册访问权限
         let authStatus = ALAssetsLibrary.authorizationStatus()
-        if authStatus == .Denied || authStatus == .Restricted {
+        if authStatus == .denied || authStatus == .restricted {
             UIAlertView(title: "提示", message: "请打开相册访问权限", delegate: nil, cancelButtonTitle: "确定").show()
             return
         }
@@ -158,9 +158,9 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
         //2. 存储图片
         let library = ALAssetsLibrary()
         let orientation = ALAssetOrientation(rawValue: image.imageOrientation.rawValue)
-        library.writeImageToSavedPhotosAlbum(image.CGImage, orientation: orientation!) { (assetURL, error) in
+        library.writeImage(toSavedPhotosAlbum: image.cgImage, orientation: orientation!) { (assetURL, error) in
             if error != nil{
-                print(error.localizedDescription)
+                print(error?.localizedDescription)
             }
         }
     }
@@ -168,17 +168,17 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     //获取当前视频方向
     func currentVideoOrientation() -> AVCaptureVideoOrientation {
         var orientation:AVCaptureVideoOrientation!
-        switch UIDevice.currentDevice().orientation {
-        case .Portrait:
-            orientation = .Portrait
-        case .LandscapeRight:
-            orientation = .LandscapeRight
-        case .PortraitUpsideDown:
-            orientation = .PortraitUpsideDown
-        case .LandscapeLeft:
-            orientation = .LandscapeLeft
+        switch UIDevice.current.orientation {
+        case .portrait:
+            orientation = .portrait
+        case .landscapeRight:
+            orientation = .landscapeRight
+        case .portraitUpsideDown:
+            orientation = .portraitUpsideDown
+        case .landscapeLeft:
+            orientation = .landscapeLeft
         default:
-            orientation = .Portrait
+            orientation = .portrait
         }
         return orientation
     }
@@ -188,54 +188,56 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     //开始捕捉视频
     func startRecording() -> Void {
         //1. 判断是否正在录制
-        if !self.movieOutput.recording {
+        if !self.movieOutput.isRecording {
             //2. 设置视频输入和输出的连接
-            let videoConnection = self.movieOutput.connectionWithMediaType(AVMediaTypeVideo)
+            let videoConnection = self.movieOutput.connection(withMediaType: AVMediaTypeVideo)
             //3. 设置视频方向
-            if videoConnection.supportsVideoOrientation {
-                videoConnection.videoOrientation = self.currentVideoOrientation()
+            if (videoConnection?.isVideoOrientationSupported)! {
+                videoConnection?.videoOrientation = self.currentVideoOrientation()
             }
             //4. 设置视频稳定性
-            if videoConnection.supportsVideoStabilization {
-                videoConnection.enablesVideoStabilizationWhenAvailable = true
+            if (videoConnection?.isVideoStabilizationSupported)! {
+//                videoConnection?.enablesVideoStabilizationWhenAvailable = true
+                //8.0后使用
+                videoConnection?.preferredVideoStabilizationMode = .auto
             }
             //5. 平滑对焦模式
             let device = self.activeVideoInput.device
-            if  device.smoothAutoFocusSupported {
-                if ((try? device.lockForConfiguration()) != nil) {
-                    device.smoothAutoFocusEnabled = true
-                    device.unlockForConfiguration()
+            if  (device?.isSmoothAutoFocusSupported)! {
+                if ((try? device?.lockForConfiguration()) != nil) {
+                    device?.isSmoothAutoFocusEnabled = true
+                    device?.unlockForConfiguration()
                 }
             }
             //6. 获取要写入到的本地URL地址
             self.outputURL = self.uniqueURL()
             //7. 写入视频
-            self.movieOutput.startRecordingToOutputFileURL(self.outputURL, recordingDelegate: self)
+            self.movieOutput.startRecording(toOutputFileURL: self.outputURL, recordingDelegate: self)
         }
     }
     
     //停止捕捉视频
     func stopRecording() -> Void {
-        if self.movieOutput.recording {
+        if self.movieOutput.isRecording {
             self.movieOutput.stopRecording()
         }
     }
     
     //生成本地文件地址
-    func uniqueURL() -> NSURL {
+    func uniqueURL() -> URL {
         let dirPath = NSTemporaryDirectory() as NSString
-        let date = NSDate()
-        let dateformattre = NSDateFormatter()
+        let date = Date()
+        let dateformattre = DateFormatter()
         dateformattre.dateFormat = "yyyyMMddHHMMSS"
-        var dateString = dateformattre.stringFromDate(date)
-        dateString = dateString.stringByAppendingString(".mov")
-        let filePath = dirPath.stringByAppendingPathComponent(dateString)
-        return NSURL.fileURLWithPath(filePath)
+        var dateString = dateformattre.string(from: date)
+        dateString = dateString + ".mov"
+        let filePath = dirPath.appendingPathComponent(dateString)
+        return URL(fileURLWithPath: filePath)
     }
     
     //MARK: - AVCaptureFileOutputRecordingDelegate
     //捕获并写入到本地完成
-    func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!) {
+    func capture(_ captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAt outputFileURL: URL!, fromConnections connections: [Any]!, error: Error!) {
         if (error == nil) {
             self.writeVideoToAssetsLibrary(self.outputURL)
         }
@@ -243,12 +245,12 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     }
     
     //写入视频到本地文件系统
-    func writeVideoToAssetsLibrary(videoURL:NSURL) -> Void {
+    func writeVideoToAssetsLibrary(_ videoURL:URL) -> Void {
         //1. 创建资源库
         let library = ALAssetsLibrary()
         //2. 检查视频是否可被写入
-        if library.videoAtPathIsCompatibleWithSavedPhotosAlbum(videoURL) {
-            library.writeVideoAtPathToSavedPhotosAlbum(videoURL, completionBlock: { (assetURL, error) in
+        if library.videoAtPathIs(compatibleWithSavedPhotosAlbum: videoURL) {
+            library.writeVideoAtPath(toSavedPhotosAlbum: videoURL, completionBlock: { (assetURL, error) in
                
             })
         }
@@ -257,7 +259,7 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     //MARK: - 切换摄像头
     //获取设备的摄像头数量
     func cameraCount() -> Int {
-        return AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo).count
+        return AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo).count
     }
 
     //只有摄像头数量大于1个时,才能进行切换
@@ -273,10 +275,10 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
         }
         //2. 获取闲置的摄像头
         var device:AVCaptureDevice
-        if self.activeVideoInput.device.position == .Back {
-            device = self.cameraWithPosition(.Front)!
+        if self.activeVideoInput.device.position == .back {
+            device = self.cameraWithPosition(.front)!
         }else{
-            device = self.cameraWithPosition(.Back)!
+            device = self.cameraWithPosition(.back)!
         }
         
         //3. 把采集设备封装为一个AVCaptureDeviceInput对象
@@ -308,8 +310,8 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     }
     
     //根据position返回可用的摄像头
-    func cameraWithPosition(position:AVCaptureDevicePosition) -> AVCaptureDevice? {
-        let devices = AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo) as! [AVCaptureDevice]
+    func cameraWithPosition(_ position:AVCaptureDevicePosition) -> AVCaptureDevice? {
+        let devices = AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo) as! [AVCaptureDevice]
         for device in devices {
             if device.position == position {
                 return device
@@ -320,18 +322,18 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     
     //MARK: - 对焦
     //传入是摄像头设备坐标系下的point
-    func focusAtPoint(point:CGPoint) -> Void {
+    func focusAtPoint(_ point:CGPoint) -> Void {
         //1. 获取当前使用的摄像头
         let device = self.activeVideoInput.device
         //2. 判断当前设备是否支持兴趣点对焦和自动对焦模式
         /*比如前置摄像头就不支持对焦操作,因为设备和目标的距离不会太长*/
-        if device.focusPointOfInterestSupported && device.isFocusModeSupported(.AutoFocus) {
+        if (device?.isFocusPointOfInterestSupported)! && (device?.isFocusModeSupported(.autoFocus))! {
             //3. 修改配置前需要先锁定设备(设备是多个应用程序通用的)
-            if ((try? device.lockForConfiguration()) != nil) {
+            if ((try? device?.lockForConfiguration()) != nil) {
                 //4. 设置对焦点,修改对焦模式
-                device.focusPointOfInterest = point
-                device.focusMode = .AutoFocus
-                device.unlockForConfiguration()
+                device?.focusPointOfInterest = point
+                device?.focusMode = .autoFocus
+                device?.unlockForConfiguration()
             }
         }else{
             //暂时忽略了对设备不支持情况的处理,比如前置摄像头
@@ -339,13 +341,13 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     }
     
     //MARK: - 曝光
-    func exposeAtPoint(point:CGPoint) -> Void {
+    func exposeAtPoint(_ point:CGPoint) -> Void {
         let device = self.activeVideoInput.device
-        if device.exposurePointOfInterestSupported && device.isExposureModeSupported(.ContinuousAutoExposure) {
-            if ((try? device.lockForConfiguration()) != nil) {
-                device.exposurePointOfInterest = point
-                device.exposureMode = .AutoExpose
-                device.unlockForConfiguration()
+        if (device?.isExposurePointOfInterestSupported)! && (device?.isExposureModeSupported(.continuousAutoExposure))! {
+            if ((try? device?.lockForConfiguration()) != nil) {
+                device?.exposurePointOfInterest = point
+                device?.exposureMode = .autoExpose
+                device?.unlockForConfiguration()
             }
         }
     }
@@ -354,57 +356,57 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     func resetFocusAndExposureModes() -> Void {
         let device = self.activeVideoInput.device
         let center = CGPoint(x: 0.5, y: 0.5)
-        if ((try? device.lockForConfiguration()) != nil) {
-            if device.focusPointOfInterestSupported && device.isFocusModeSupported(.ContinuousAutoFocus) {
-                device.focusMode = .ContinuousAutoFocus
-                device.focusPointOfInterest = center
+        if ((try? device?.lockForConfiguration()) != nil) {
+            if (device?.isFocusPointOfInterestSupported)! && (device?.isFocusModeSupported(.continuousAutoFocus))! {
+                device?.focusMode = .continuousAutoFocus
+                device?.focusPointOfInterest = center
             }
-            if device.exposurePointOfInterestSupported && device.isExposureModeSupported(.ContinuousAutoExposure) {
-                device.exposureMode = .ContinuousAutoExposure
-                device.exposurePointOfInterest = center
+            if (device?.isExposurePointOfInterestSupported)! && (device?.isExposureModeSupported(.continuousAutoExposure))! {
+                device?.exposureMode = .continuousAutoExposure
+                device?.exposurePointOfInterest = center
             }
-            device.unlockForConfiguration()
+            device?.unlockForConfiguration()
         }
     }
     
     //MARK:- 拍照闪光灯
-    func switchFlash(mode:AVCaptureFlashMode) -> Void {
+    func switchFlash(_ mode:AVCaptureFlashMode) -> Void {
         let device = self.activeVideoInput.device
-        if device.isFlashModeSupported(mode) {
-            if ((try? device.lockForConfiguration()) != nil) {
-                device.flashMode = mode
-                device.unlockForConfiguration()
+        if (device?.isFlashModeSupported(mode))! {
+            if ((try? device?.lockForConfiguration()) != nil) {
+                device?.flashMode = mode
+                device?.unlockForConfiguration()
             }
         }
     }
     //MARK: - 视频手电筒
-    func switchTorch(mode:AVCaptureTorchMode) -> Void {
+    func switchTorch(_ mode:AVCaptureTorchMode) -> Void {
         let device = self.activeVideoInput.device
-        if device.isTorchModeSupported(mode) {
-            if ((try? device.lockForConfiguration()) != nil) {
-                device.torchMode = mode
-                device.unlockForConfiguration()
+        if (device?.isTorchModeSupported(mode))! {
+            if ((try? device?.lockForConfiguration()) != nil) {
+                device?.torchMode = mode
+                device?.unlockForConfiguration()
             }
         }
     }
     
     //MARK: - 视频缩放
-    func zoomVedio(scale:CGFloat) -> Void {
+    func zoomVedio(_ scale:CGFloat) -> Void {
         //1. 判断是否支持缩放
         if !self.cameraSupportsZoom() {
             return
         }
         //2. 判断缩放比例,最大的缩放比例为device.activeFormat.videoMaxZoomFactor,但这里只进行最多4倍缩放
         let device = self.activeVideoInput.device
-        let zoomFactor = scale * device.videoZoomFactor
+        let zoomFactor = scale * (device?.videoZoomFactor)!
         if zoomFactor > 4 || zoomFactor < 1 {
             return
         }
         //3. 锁定配置并修改
-        if ((try? device.lockForConfiguration()) != nil) {
-            device.videoZoomFactor = zoomFactor
+        if ((try? device?.lockForConfiguration()) != nil) {
+            device?.videoZoomFactor = zoomFactor
             //4. 解锁配置
-            device.unlockForConfiguration()
+            device?.unlockForConfiguration()
         }
         
     }
@@ -416,9 +418,9 @@ class CaptureModel: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureMet
     
     
     //MARK: - AVCaptureMetadataOutputObjectsDelegate
-    func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [AnyObject]!, fromConnection connection: AVCaptureConnection!) {
+    func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [Any]!, from connection: AVCaptureConnection!) {
         
-        self.faceDelegate?.didDetectFaces(metadataObjects)
+        self.faceDelegate?.didDetectFaces(metadataObjects as [AnyObject])
 
     }
     

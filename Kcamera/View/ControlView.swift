@@ -14,8 +14,8 @@ class ControlView: UIView {
     @IBOutlet weak var modeView: CameraModeView!
     
     //屏蔽除了statusView和modeView区域外的点击事件
-    override func pointInside(point: CGPoint, withEvent event: UIEvent?) -> Bool {
-        if self.statusView.pointInside(self.convertPoint(point, toView: self.statusView), withEvent: event) || self.modeView.pointInside(self.convertPoint(point, toView: self.modeView), withEvent: event){
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        if self.statusView.point(inside: self.convert(point, to: self.statusView), with: event) || self.modeView.point(inside: self.convert(point, to: self.modeView), with: event){
             return true
         }
         return false
